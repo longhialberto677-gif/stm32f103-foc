@@ -3,14 +3,14 @@
 
 #include "bsp_system.h"
 
-/* ÕýÏÒ±í´óÐ¡£º1024 µã£¬±ØÐëÊÇ 2 µÄÃÝ */
+/* æ­£å¼¦è¡¨å¤§å°ï¼š1024 ç‚¹ï¼Œå¿…é¡»æ˜¯ 2 çš„å¹‚ */
 #define SIN_TAB_BITS      10
-#define SIN_TAB_SIZE      (1 << SIN_TAB_BITS)        /* 1024 Ë÷ÒýÊý */
-#define SIN_TAB_MASK      (SIN_TAB_SIZE - 1)         /* 1023 ±íË÷ÒýÑÚÂë */
+#define SIN_TAB_SIZE      (1 << SIN_TAB_BITS)        /* 1024 ç´¢å¼•æ•° */
+#define SIN_TAB_MASK      (SIN_TAB_SIZE - 1)         /* 1023 è¡¨ç´¢å¼•æŽ©ç  */
 
-/* Ð¡Êý²¿·ÖÑÚÂë£º¸ß 10 Î»µ±Ë÷Òý£¬Ê£ÏÂµÍ 6 Î»µ±Ð¡Êý
- * Ò»¸öË÷Òý²½³¤ = 65536/1024 = 64£¬ËùÒÔÐ¡Êý·¶Î§ 0~63
- * ²»ÄÜ´íÓÃ SIN_TAB_SIZE-1 (=1023)£¬·ñÔò²åÖµ±ä 16 ±¶ÍâÍÆ */
+/* å°æ•°éƒ¨åˆ†æŽ©ç ï¼šé«˜ 10 ä½å½“ç´¢å¼•ï¼Œå‰©ä¸‹ä½Ž 6 ä½å½“å°æ•°
+ * ä¸€ä¸ªç´¢å¼•æ­¥é•¿ = 65536/1024 = 64ï¼Œæ‰€ä»¥å°æ•°èŒƒå›´ 0~63
+ * ä¸èƒ½é”™ç”¨ SIN_TAB_SIZE-1 (=1023)ï¼Œå¦åˆ™æ’å€¼å˜ 16 å€å¤–æŽ¨ */
 #define SIN_TAB_FRAC_BITS (16 - SIN_TAB_BITS)              /* 6 */
 #define SIN_TAB_FRAC_MASK ((1 << SIN_TAB_FRAC_BITS) - 1)   /* 63 */
 
@@ -18,6 +18,6 @@
 extern const float sin_tab[SIN_TAB_SIZE];
 
 void Foc_SinCos_U16(uint16_t angle, float *ps, float *pc);
-void Foc_Sin_U16(uint16_t angle);           /* Èç¹û»¹Áô×Åµ¥µã°æ¾Í¼ÓÉÏ */
+void Foc_Sin_U16(uint16_t angle);           /* å¦‚æžœè¿˜ç•™ç€å•ç‚¹ç‰ˆå°±åŠ ä¸Š */
 
 #endif

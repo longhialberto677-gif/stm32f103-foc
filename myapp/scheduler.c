@@ -38,44 +38,44 @@ void scheduler_run()
 
 Motor_TypeDef MotorSystem;
 /**
- * @brief µç»ú×´Ì¬»ú³õÊ¼»¯
- * @param state : µç»ú×´Ì¬»ú½á¹¹ÌåÖ¸Õë
- * @return ÎÞ
+ * @brief ç”µæœºçŠ¶æ€æœºåˆå§‹åŒ–
+ * @param state : ç”µæœºçŠ¶æ€æœºç»“æž„ä½“æŒ‡é’ˆ
+ * @return æ— 
  */
 void Motor_StateMachine_Init(Motor_TypeDef *state)
 {
-	  /* Ó²¼þ³õÊ¼»¯ */
+	  /* ç¡¬ä»¶åˆå§‹åŒ– */
 	  Motor_Hardware_Init();
-	  /* ÉèÖÃµç»úµçÑ¹ºÍÄ¸ÏßµçÑ¹PWMÖÜÆÚ */
+	  /* è®¾ç½®ç”µæœºç”µåŽ‹å’Œæ¯çº¿ç”µåŽ‹PWMå‘¨æœŸ */
 	  Set_Udc_Tpwm_Param(&state->Foc,UDC,TPWM);
 }
 /**
- * @brief µç»ú×´Ì¬»úÔËÐÐº¯Êý
- * @param state : µç»ú×´Ì¬»ú½á¹¹ÌåÖ¸Õë
- * @return ÎÞ
+ * @brief ç”µæœºçŠ¶æ€æœºè¿è¡Œå‡½æ•°
+ * @param state : ç”µæœºçŠ¶æ€æœºç»“æž„ä½“æŒ‡é’ˆ
+ * @return æ— 
  */
 void Motor_StateMachine_Run(Motor_TypeDef *state)
 {
-	/* ´´½¨ÐéÄâ½Ç¶È±äÁ¿ */
+	/* åˆ›å»ºè™šæ‹Ÿè§’åº¦å˜é‡ */
 	static float Theta = 0.0f;
-	/* ½Ç¶È±äÁ¿ÀÛ¼Ó */
+	/* è§’åº¦å˜é‡ç´¯åŠ  */
     Theta += 0.001f;
-	/* ½Ç¶ÈÏÞ·ù */
+	/* è§’åº¦é™å¹… */
     if (Theta >= ANGLE_2PI)
     {
         Theta -= ANGLE_2PI;
     }
-	/* ÉèÖÃµç»ú½Ç¶È */
+	/* è®¾ç½®ç”µæœºè§’åº¦ */
     state->Foc.Theta     = Theta;
-	/* sin²é±í */
+	/* sinæŸ¥è¡¨ */
     state->Foc.Theta_U16 = ANGLE_FROM_RAD(Theta);
-	/* ÉèÖÃVd,Vq */
+	/* è®¾ç½®Vd,Vq */
     state->Foc.Vd = 0.0f;
     state->Foc.Vq = 2.0f;
 
-	/* ×ø±ê±ä»»¸üÐÂ */
+	/* åæ ‡å˜æ¢æ›´æ–° */
 	Foc_VoltageUpdate(&state->Foc);
-	/* ½«¼ÆËã³öµÄÈýÏàCCR±È½ÏÖµ¸³Öµ¸øÈýÂ·CCR±È½ÏÖµ¼Ä´æÆ÷ */
+	/* å°†è®¡ç®—å‡ºçš„ä¸‰ç›¸CCRæ¯”è¾ƒå€¼èµ‹å€¼ç»™ä¸‰è·¯CCRæ¯”è¾ƒå€¼å¯„å­˜å™¨ */
 	Motor_SetPWM(state->Foc.Tcmp1,state->Foc.Tcmp2,state->Foc.Tcmp3);
 }
 

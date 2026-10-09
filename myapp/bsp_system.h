@@ -23,6 +23,7 @@
 #include "Vofa.h"
 #include "FocAlgorithm.h"
 #include "interrupt.h"
+#include "test.h"
 
 
 #endif

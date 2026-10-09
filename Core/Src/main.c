@@ -94,6 +94,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+  CpuStat_Init();
   scheduler_init();
   Motor_StateMachine_Init(&MotorSystem);
   /* USER CODE END 2 */

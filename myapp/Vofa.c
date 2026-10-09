@@ -1,16 +1,16 @@
 #include "Vofa.h"
 
-/* Vofa·¢ËÍ½á¹¹ÌåÊµÀı */
+/* Vofaå‘é€ç»“æ„ä½“å®ä¾‹ */
 VofaSend_TypeDef VofaSend;
 
 /**
- * @brief Vofa+·¢ËÍº¯Êı£¨·Ç×èÈû£ºÖ»ÌîÊı¾İ + Æô¶¯DMA·¢ËÍ£¬²»µÈ´ı·¢ËÍÍê³É£©
- * @param ÎŞ
- * @return ÎŞ
+ * @brief Vofa+å‘é€å‡½æ•°ï¼ˆéé˜»å¡ï¼šåªå¡«æ•°æ® + å¯åŠ¨DMAå‘é€ï¼Œä¸ç­‰å¾…å‘é€å®Œæˆï¼‰
+ * @param æ— 
+ * @return æ— 
  */
 void Vofa_Send_Task(void)
 {
-    /* ÌîÈëĞèÒª·¢ËÍµÄÊı¾İ */
+    /* å¡«å…¥éœ€è¦å‘é€çš„æ•°æ® */
     VofaSend.Send_Data_Array[0] = MotorSystem.Foc.Theta;
 //	VofaSend.Send_Data_Array[0] = 1.0f;
     VofaSend.Send_Data_Array[1] = MotorSystem.Foc.Valpha;
@@ -25,27 +25,27 @@ void Vofa_Send_Task(void)
 }
 
 /**
- * @brief Vofa+Êı¾İ´¦Àíº¯Êı£¨×é×°Ò»Ö¡²¢Æô¶¯DMA·¢ËÍ£¬Á¢¼´·µ»Ø£©
- * @param ÎŞ
- * @return ÎŞ
+ * @brief Vofa+æ•°æ®å¤„ç†å‡½æ•°ï¼ˆç»„è£…ä¸€å¸§å¹¶å¯åŠ¨DMAå‘é€ï¼Œç«‹å³è¿”å›ï¼‰
+ * @param æ— 
+ * @return æ— 
  */
 void Vofa_Data_Process(void)
 {
-    /* ÉÏÒ»Ö¡»¹ÔÚDMA°áÔËÖĞ¾ÍÖ±½Ó¶ªÆú±¾Ö¡£¬±ÜÃâ¸ÄĞ´ÕıÔÚ·¢ËÍµÄ»º³åÇø */
+    /* ä¸Šä¸€å¸§è¿˜åœ¨DMAæ¬è¿ä¸­å°±ç›´æ¥ä¸¢å¼ƒæœ¬å¸§ï¼Œé¿å…æ”¹å†™æ­£åœ¨å‘é€çš„ç¼“å†²åŒº */
     if (huart1.gState != HAL_UART_STATE_READY)
     {
         return;
     }
 
-    /* Í¨¹ı¿½±´½«¸¡µãÊıÊı¾İ×ª»»³Éµ¥×Ö½ÚÊı¾İ£¨Ğ¡¶Ë IEEE-754 Ô­Ñù°áÔË£© */
+    /* é€šè¿‡æ‹·è´å°†æµ®ç‚¹æ•°æ•°æ®è½¬æ¢æˆå•å­—èŠ‚æ•°æ®ï¼ˆå°ç«¯ IEEE-754 åŸæ ·æ¬è¿ï¼‰ */
     memcpy(VofaSend.Byte_Data_Array, VofaSend.Send_Data_Array, data_num * 4);
 
-    /* Ìí¼ÓÍ¨ĞÅĞ­ÒéµÄÖ¡Î²£º0x7F800000£¬¼´ +INF£¬Ğ¡¶Ë×Ö½ÚĞòÎª 00 00 80 7F */
+    /* æ·»åŠ é€šä¿¡åè®®çš„å¸§å°¾ï¼š0x7F800000ï¼Œå³ +INFï¼Œå°ç«¯å­—èŠ‚åºä¸º 00 00 80 7F */
     VofaSend.Byte_Data_Array[data_len - 4] = 0x00;
     VofaSend.Byte_Data_Array[data_len - 3] = 0x00;
     VofaSend.Byte_Data_Array[data_len - 2] = 0x80;
     VofaSend.Byte_Data_Array[data_len - 1] = 0x7f;
 
-    /* ·Ç×èÈû·¢ËÍ£º24×Ö½Ú½»¸ø DMA1_Channel4 °áÔË£¬CPU Á¢¿Ì·µ»Ø */
+    /* éé˜»å¡å‘é€ï¼š24å­—èŠ‚äº¤ç»™ DMA1_Channel4 æ¬è¿ï¼ŒCPU ç«‹åˆ»è¿”å› */
     HAL_UART_Transmit_DMA(&huart1, VofaSend.Byte_Data_Array, data_len);
 }

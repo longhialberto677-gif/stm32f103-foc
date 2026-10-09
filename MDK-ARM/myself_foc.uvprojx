@@ -755,6 +755,16 @@
               <FileType>5</FileType>
               <FilePath>..\myapp\key_app.h</FilePath>
             </File>
+            <File>
+              <FileName>test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\myapp\test.c</FilePath>
+            </File>
+            <File>
+              <FileName>test.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\myapp\test.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
