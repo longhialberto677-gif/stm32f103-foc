@@ -24,8 +24,10 @@ void Motor_DisablePWM()
 
 void Motor_Hardware_Init()
 {
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_4);
+	/* 使能定时器一通道四捕获中断 */
+	__HAL_TIM_ENABLE_IT(&htim1,TIM_IT_CC4);
 	Motor_EnablePWM();
-	HAL_TIM_Base_Start_IT(&htim4);
 }
 
 void Motor_SetPWM(uint16_t Tcmp1,uint16_t Tcmp2,uint16_t Tcmp3)

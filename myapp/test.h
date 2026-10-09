@@ -13,10 +13,10 @@
  * ========================================================= */
 
 #define CPU_STAT_CPU_HZ   72000000U                       /* 主频 72MHz */
-#define CPU_STAT_ISR_HZ   20000U                          /* TIM4 中断 20kHz */
-/* 每次中断的周期预算：72MHz / 20kHz = 3600 cycle */
+#define CPU_STAT_ISR_HZ   20408U                          /* TIM1_CH4 比较中断 = 载波率 2MHz/(2x49) = 20.408kHz */
+/* 每次中断的周期预算：72MHz / 20.408kHz = 3528 cycle */
 #define CPU_STAT_BUDGET   (CPU_STAT_CPU_HZ / CPU_STAT_ISR_HZ)
-/* 结算窗口：1000 次中断 = 50ms */
+/* 结算窗口：1000 次中断 ≈ 49ms */
 #define CPU_STAT_WINDOW   1000U
 
 /* 中断占用观察结构体：Keil 调试时把 CpuStat 加进 Watch 窗口即可 */
