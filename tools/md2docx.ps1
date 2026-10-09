@@ -256,14 +256,15 @@ $sr = New-Object System.IO.StreamReader($xmlEntry.Open()); $xml = $sr.ReadToEnd(
 $zip.Dispose()
 
 $embeds = ([regex]::Matches($xml, 'r:embed=')).Count
+$cjk = ([regex]::Matches($xml, '[\u4e00-\u9fff]')).Count
 Write-Host ""
 Write-Host "---- 校验 ----"
 Write-Host ("文档大小       : {0:N0} KB" -f ((Get-Item -LiteralPath $DocxPath).Length / 1KB))
 Write-Host ("word/media 条目 : {0} 张（预期 {1}）" -f $media.Count, $imgBlocks.Count)
 Write-Host ("r:embed 引用   : {0}（预期 {1}）" -f $embeds, $imgBlocks.Count)
-Write-Host ("含中文字符     : {0}" -f $(if ($xml -match '马鞍波') { '是 ✓' } else { '否 ✗' }))
+Write-Host ("中文字符数     : {0}" -f $cjk)
 
-if (($media.Count -eq $imgBlocks.Count) -and ($embeds -eq $imgBlocks.Count)) {
+if (($media.Count -eq $imgBlocks.Count) -and ($embeds -eq $imgBlocks.Count) -and ($cjk -gt 0)) {
     Write-Host "结果           : 通过，图片已内嵌 ✓"
     exit 0
 } else {
