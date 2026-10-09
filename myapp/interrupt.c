@@ -10,13 +10,4 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
         Motor_StateMachine_Run(&MotorSystem);   /* ← 偶数拍：真正跑 FOC */
     }
 }
-//void TIM4_IRQHandler(void)
-//{
-//  /* USER CODE BEGIN TIM4_IRQn 0 */
-//  CpuStat_IsrBegin();
-//  /* USER CODE END TIM4_IRQn 0 */
-//  HAL_TIM_IRQHandler(&htim4);
-//  /* USER CODE BEGIN TIM4_IRQn 1 */
-//  CpuStat_IsrEnd();
-//  /* USER CODE END TIM4_IRQn 1 */
-//}
+

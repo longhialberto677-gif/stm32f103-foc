@@ -44,10 +44,12 @@ Motor_TypeDef MotorSystem;
  */
 void Motor_StateMachine_Init(Motor_TypeDef *state)
 {
-	  /* 硬件初始化 */
-	  Motor_Hardware_Init();
-	  /* 设置电机电压和母线电压PWM周期 */
+	  /* 先设置电压/PWM 周期参数，再开中断 ——
+	   * 顺序反了的话，中断刚使能的那几个周期里 Kpwm/HalfTpwm 还是 0（Udc=0 会算出 inf），
+	   * Tcmp 会被算成垃圾值。上电时电机没转，实际无害，但不该依赖这个巧合 */
 	  Set_Udc_Tpwm_Param(&state->Foc,UDC,TPWM);
+	  /* 硬件初始化（内含启动 PWM + 使能 TIM1_CH4 比较中断）*/
+	  Motor_Hardware_Init();
 }
 /**
  * @brief 电机状态机运行函数
