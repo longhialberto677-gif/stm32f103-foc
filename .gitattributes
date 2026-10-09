@@ -1,0 +1,42 @@
+# ============================================================
+# Git 属性规则
+#   - 统一换行符，避免 Windows/Linux 协作时整文件 diff
+#   - 明确标记二进制文件，防止被当文本处理
+#   - 中文文件名与 UTF-8 内容不做转换
+# ============================================================
+
+# 默认：自动识别文本文件，统一在仓库内使用 LF
+* text=auto
+
+# ---------- 源码：LF ----------
+*.c    text eol=lf
+*.h    text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf diff=markdown
+*.ioc  text eol=lf
+*.s    text eol=lf
+*.sct  text eol=lf
+
+# ---------- Windows 专用文件：保持 CRLF ----------
+*.uvprojx  text eol=crlf
+*.uvoptx   text eol=crlf
+*.mxproject text eol=crlf
+
+# ---------- 二进制：禁止换行符转换 ----------
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.docx   binary
+*.doc    binary
+*.slx    binary
+*.axf    binary
+*.hex    binary
+*.bin    binary
+*.zip    binary
+
+# ---------- GitHub 语言统计：把 vendor 代码排除，让统计反映自己的代码 ----------
+Drivers/STM32F1xx_HAL_Driver/** linguist-vendored
+Drivers/CMSIS/**                 linguist-vendored
+MDK-ARM/startup_stm32f103xb.s    linguist-vendored

@@ -1,0 +1,75 @@
+# ============================================================
+# STM32 FOC 学习工程 —— Git 忽略规则
+# ============================================================
+
+# ---------- Keil MDK-ARM 编译产物 ----------
+# 中间文件（.o/.crf/.d 动辄几百 KB，全部可重新编译得到）
+MDK-ARM/myself_foc/
+*.o
+*.crf
+*.d
+*.dep
+*.lnp
+*.map
+*.lst
+*.htm
+*.build_log.htm
+*.sct
+*.axf
+*.hex
+*.bin
+
+# 旧版 / 新版 Keil 工程用户配置（含本机窗口布局、J-Link 序列号等）
+*.uvguix.*
+*.uvopt
+*.uvoptx
+*.uvproj.bak
+*.uvprojx.bak
+*.uvguix
+
+# J-Link / 调试器配置缓存
+*.dbgconf
+JLinkLog.txt
+JLinkSettings.ini
+
+# Keil 自动保存 / 备份
+*.bak
+*.autosave
+*.orig
+*~
+
+# ---------- Windows ----------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ---------- macOS ----------
+.DS_Store
+._*
+
+# ---------- 编辑器 / IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---------- MATLAB/Simulink 自动保存 ----------
+*.slx.autosave
+*.slxc
+slprj/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---------- 临时文件 ----------
+*.tmp
+*.log
+
+# ---------- AI 工具临时产物（截图缓存，不入库）----------
+.dsh-vision-toolkit/
+.dsh/
