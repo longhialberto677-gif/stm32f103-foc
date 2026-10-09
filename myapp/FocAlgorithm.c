@@ -58,10 +58,12 @@ void SVPWM_ZeroSqInject(Foc_TypeDef *state)
     state->Vv_Mod = V0 + state->Vv;
     state->Vw_Mod = V0 + state->Vw;
 
-    /* 将三相马鞍电压转化成三相PWM比较值 */
-    state->Tcmp1 = (int)(((state->Vu_Mod) / state->Udc + 0.5f) * state->Tpwm);
-    state->Tcmp2 = (int)(((state->Vv_Mod) / state->Udc + 0.5f) * state->Tpwm);
-    state->Tcmp3 = (int)(((state->Vw_Mod) / state->Udc + 0.5f) * state->Tpwm);
+    /* 将三相马鞍电压转化成三相PWM比较值
+     *   (Vm/Udc + 0.5)*Tpwm  ≡  Vm*(Tpwm/Udc) + 0.5*Tpwm
+     * 展开成"1乘1加"之后，每周期 3 次软浮点除法彻底消失（Kpwm/HalfTpwm 在初始化时算好）*/
+    state->Tcmp1 = (int)(state->Vu_Mod * state->Kpwm + state->HalfTpwm);
+    state->Tcmp2 = (int)(state->Vv_Mod * state->Kpwm + state->HalfTpwm);
+    state->Tcmp3 = (int)(state->Vw_Mod * state->Kpwm + state->HalfTpwm);
 
 }
 /* ============================================================================
@@ -69,8 +71,12 @@ void SVPWM_ZeroSqInject(Foc_TypeDef *state)
  * ==========================================================================*/
 void Set_Udc_Tpwm_Param(Foc_TypeDef*state,float udc_temp,float Tpwm_temp)
 {
-	state->Udc = udc_temp;
+	state->Udc  = udc_temp;
 	state->Tpwm = Tpwm_temp;
+	/* 预存下面两个常量：全工程唯一一次除法，只在初始化/改参数时做一次
+	 * （以后用 ADC 逐周期补偿母线电压时，这里改成每周期算一次，仍然是 1 次除法换掉 3 次）*/
+	state->Kpwm     = Tpwm_temp / udc_temp;
+	state->HalfTpwm = 0.5f * Tpwm_temp;
 }
 /* ============================================================================
  * 坐标变换电压更新函数

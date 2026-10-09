@@ -9,7 +9,9 @@
 typedef struct
 {
 	float Udc;        /* 母线电压 */
-	float Tpwm;       /* PWM周期 */
+	float Tpwm;       /* PWM周期（= TIM1 ARR） */
+	float Kpwm;       /* 预存 Tpwm/Udc：把每周期 3 次除法折成常量，中断里只做乘法 */
+	float HalfTpwm;   /* 预存 0.5f*Tpwm：SVPWM 的直流偏置项 */
     float Vd;        /* d轴电压 */
     float Vq;        /* q轴电压 */
     float Theta;     /* 电机角度（弧度 0~2*pi，给 VOFA 看波形用）*/
