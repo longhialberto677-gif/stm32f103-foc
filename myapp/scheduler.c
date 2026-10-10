@@ -48,6 +48,8 @@ void Motor_StateMachine_Init(Motor_TypeDef *state)
 	   * 顺序反了的话，中断刚使能的那几个周期里 Kpwm/HalfTpwm 还是 0（Udc=0 会算出 inf），
 	   * Tcmp 会被算成垃圾值。上电时电机没转，实际无害，但不该依赖这个巧合 */
 	  Set_Udc_Tpwm_Param(&state->Foc,UDC,TPWM);
+	/* 初始化VF参数 */
+	Vf_SpeedControl_Param_Init(&state->Vf,50,20,0.001,FOC_TS);
 	  /* 硬件初始化（内含启动 PWM + 使能 TIM1_CH4 比较中断）*/
 	  Motor_Hardware_Init();
 }
@@ -58,19 +60,21 @@ void Motor_StateMachine_Init(Motor_TypeDef *state)
  */
 void Motor_StateMachine_Run(Motor_TypeDef *state)
 {
-	/* 创建虚拟角度变量 */
-	static float Theta = 0.0f;
-	/* 角度变量累加 */
-    Theta += 0.001f;
-	/* 角度限幅 */
-    if (Theta >= ANGLE_2PI)
-    {
-        Theta -= ANGLE_2PI;
-    }
-	/* 设置电机角度 */
-    state->Foc.Theta     = Theta;
-	/* sin查表 */
-    state->Foc.Theta_U16 = ANGLE_FROM_RAD(Theta);
+//	/* 创建虚拟角度变量 */
+//	static float Theta = 0.0f;
+//	/* 角度变量累加 */
+//    Theta += 0.001f;
+//	/* 角度限幅 */
+//    if (Theta >= ANGLE_2PI)
+//    {
+//        Theta -= ANGLE_2PI;
+//    }
+//	/* 设置电机角度 */
+	Vf_SpeedControl_Update(&state->Vf,&state->Foc.Theta);
+	state->Foc.Theta_U16 = ANGLE_FROM_RAD(state->Foc.Theta);   /* ← 补这句 */
+//    state->Foc.Theta     = Theta;
+//	/* sin查表 */
+//    state->Foc.Theta_U16 = ANGLE_FROM_RAD(Theta);
 	/* 设置Vd,Vq */
     state->Foc.Vd = 0.0f;
     state->Foc.Vq = 2.0f;

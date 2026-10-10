@@ -79,6 +79,73 @@ void Set_Udc_Tpwm_Param(Foc_TypeDef*state,float udc_temp,float Tpwm_temp)
 	state->HalfTpwm = 0.5f * Tpwm_temp;
 }
 /* ============================================================================
+ * VF速度控制参数初始化函数
+ * ==========================================================================*/
+void Vf_SpeedControl_Param_Init(Vf_SpeedControl_TypeDef*state,float acc,float target_speed,float dead_zone,float ts)
+{
+	state->Acc = acc;
+	state->Target_Speed = target_speed;
+	state->Dead_Zone = dead_zone;
+	state->Ts = ts;
+	
+}
+/* ============================================================================
+ * VF速度控制周期函数
+ * ==========================================================================*/
+void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,float *Target_Theta_Acc)
+{
+	/* 计算速度误差 */
+	state->Speed_Error = state->Target_Speed - state->Speed_Integrator;
+	/* 死区处理 */
+	if(fabs(state->Speed_Error) < state->Dead_Zone)
+	{
+		state->Speed_Error_Dead = 0;
+	}
+	else
+	{
+		state->Speed_Error_Dead = state->Speed_Error;
+	}
+	/* 判断加速度方向 */
+	if(state->Speed_Error_Dead > 0)
+	{
+		state->Acc_Dir = 1;
+	}
+	else if(state->Speed_Error_Dead < 0)
+	{
+		state->Acc_Dir = -1;
+	}
+	else
+	{
+		state->Acc_Dir = 0;
+	}
+	/* 加速度积分得到速度 */
+	state->Speed_Integrator += state->Acc_Dir * state->Acc * state->Ts;
+
+	/* 速度积分得到角度；然后立刻把累加器回绕，别让它无限增长
+	 * 用 if 不用 while：单次角度增量是 Speed*Ts（约 0.002 rad），远小于 2π，
+	 * 一次减法足够；而且万一 Speed_Integrator 变成 inf/NaN，
+	 * while 会死循环卡在中断里，if 顶多这一拍算错，下一拍就恢复 */
+	state->Theta_Integrator += state->Speed_Integrator * state->Ts;
+
+	/* 速度可正可负（反转），两边都要判；回绕后累加器永远停在 [0, 2π) */
+	if(state->Theta_Integrator >= ANGLE_2PI)
+	{
+		state->Theta_Integrator -= ANGLE_2PI;
+	}
+	else if(state->Theta_Integrator < 0.0f)
+	{
+		state->Theta_Integrator += ANGLE_2PI;
+	}
+
+	/* 累加器已经在 [0, 2π) 内，直接就是输出角度，不需要 fmod 了 */
+	state->Theta = state->Theta_Integrator;
+	state->Speed = state->Speed_Integrator;
+
+	/* 函数输出 */
+	*Target_Theta_Acc = state->Theta;
+}
+
+/* ============================================================================
  * 坐标变换电压更新函数
  * ==========================================================================*/
 void Foc_VoltageUpdate(Foc_TypeDef*state)

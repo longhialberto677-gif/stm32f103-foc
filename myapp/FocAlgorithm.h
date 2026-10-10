@@ -33,6 +33,32 @@ typedef struct
 	int Tcmp3;       /* W相比较值 */
 }Foc_TypeDef;
 
+/**
+ * @brief Vf角度生成器参数结构体
+ *
+ */
+typedef struct
+{
+	/* 输入参数 */
+	float Acc;               /* 加速度 */
+	float Target_Speed;      /* 目标速度 */
+	float Dead_Zone;         /* 死区阈值 */
+	float Ts;                /* 步长 */
+	
+	/* 中间参数 */
+	float Speed_Error;       /* 速度误差 */
+	float Speed_Error_Dead;  /* 带死区的速度误差 */
+	float Acc_Dir;           /* 加速度方向 */
+	float Speed_Integrator;  /* 速度积分器 */
+	float Theta_Integrator;  /* 角度积分器 */
+	
+	/* 输出参数 */
+	float Speed;             /* 实际速度 */
+	float Theta;             /* 实际角度 */
+	
+	
+}Vf_SpeedControl_TypeDef;
+
 #include "bsp_system.h"
 
 
@@ -60,6 +86,8 @@ void Rev_Clark_Transf(Foc_TypeDef *state);
 void SVPWM_ZeroSqInject(Foc_TypeDef *state);
 void Set_Udc_Tpwm_Param(Foc_TypeDef*state,float udc_temp,float Tpwm_temp);
 void Foc_VoltageUpdate(Foc_TypeDef*state);
+void Vf_SpeedControl_Param_Init(Vf_SpeedControl_TypeDef*state,float acc,float target_speed,float dead_zone,float ts);
+void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,float *Target_Theta_Acc);
 //extern Foc_TypeDef Foc; 
 
 #endif
