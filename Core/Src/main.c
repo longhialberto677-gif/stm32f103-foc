@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -92,6 +93,7 @@ int main(void)
   MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_TIM1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   CpuStat_Init();
   scheduler_init();
@@ -103,6 +105,18 @@ int main(void)
   while (1)
   {
 //	  printf("hello");
+	/* 编码器限频到 1kHz。400kHz 下每次读约 0.12ms → 约 12% CPU
+	 * 千万不要每圈都读：阻塞式读会把主循环的时间全吃掉 */
+	static uint32_t enc_tick = 0;
+	if((HAL_GetTick() - enc_tick) >= 1U)
+	{
+		enc_tick = HAL_GetTick();
+		uint16_t data = AS5600_ReadData();
+		if(data != 0xFFFF)                 /* 读失败就不更新角度 */
+		{
+			Encoder_UpData(&MotorSystem.Encoder,data);
+		}
+	}
 	  scheduler_run();
 	  Vofa_Send_Task();
 //	  HAL_Delay(100);

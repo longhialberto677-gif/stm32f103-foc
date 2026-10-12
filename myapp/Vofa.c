@@ -17,9 +17,9 @@ void Vofa_Send_Task(void)
     VofaSend.Send_Data_Array[3] = MotorSystem.Vf.Theta;
     VofaSend.Send_Data_Array[4] = MotorSystem.Foc.Vv;
 	VofaSend.Send_Data_Array[5] = MotorSystem.Foc.Vw;
-	VofaSend.Send_Data_Array[6] = MotorSystem.Foc.Vu_Mod;
-    VofaSend.Send_Data_Array[7] = MotorSystem.Foc.Vv_Mod;
-	VofaSend.Send_Data_Array[8] = MotorSystem.Foc.Vw_Mod;
+	VofaSend.Send_Data_Array[6] = MotorSystem.Encoder.Theta_U16;
+    VofaSend.Send_Data_Array[7] = MotorSystem.Encoder.Theta_e_U16;
+	VofaSend.Send_Data_Array[8] = MotorSystem.Encoder.Pulse_Data;
     Vofa_Data_Process();
 }
 

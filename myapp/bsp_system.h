@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -24,6 +25,7 @@
 #include "FocAlgorithm.h"
 #include "interrupt.h"
 #include "test.h"
+#include "Encoder.h"
 
 
 #endif

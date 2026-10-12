@@ -49,9 +49,11 @@ void Motor_StateMachine_Init(Motor_TypeDef *state)
 	   * Tcmp 会被算成垃圾值。上电时电机没转，实际无害，但不该依赖这个巧合 */
 	  Set_Udc_Tpwm_Param(&state->Foc,UDC,TPWM);
 	/* 初始化VF参数 */
-	Vf_SpeedControl_Param_Init(&state->Vf,50,20,0.001,FOC_TS);
+	Vf_SpeedControl_Param_Init(&state->Vf,50,0,0.001,FOC_TS);
 	  /* 硬件初始化（内含启动 PWM + 使能 TIM1_CH4 比较中断）*/
 	  Motor_Hardware_Init();
+		/* 初始化编码器参数 */
+	Encoder_Param_Init(&state->Encoder,ENCODER_LINE,0,Pn,3108);
 }
 /**
  * @brief 电机状态机运行函数
@@ -69,6 +71,7 @@ void Motor_StateMachine_Run(Motor_TypeDef *state)
 //    {
 //        Theta -= ANGLE_2PI;
 //    }
+
 //	/* 设置电机角度 */
 	Vf_SpeedControl_Update(&state->Vf,&state->Foc.Theta);
 	state->Foc.Theta_U16 = ANGLE_FROM_RAD(state->Foc.Theta);   /* ← 补这句 */
@@ -77,7 +80,7 @@ void Motor_StateMachine_Run(Motor_TypeDef *state)
 //    state->Foc.Theta_U16 = ANGLE_FROM_RAD(Theta);
 	/* 设置Vd,Vq */
     state->Foc.Vd = 0.0f;
-    state->Foc.Vq = 2.0f;
+    state->Foc.Vq = 0.0f;
 
 	/* 坐标变换更新 */
 	Foc_VoltageUpdate(&state->Foc);
