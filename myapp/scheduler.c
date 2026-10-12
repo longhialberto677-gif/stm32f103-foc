@@ -11,7 +11,8 @@ uint8_t task_num = 0;
 
 task_t task[]=
 {
-	{led_proc,100,0}
+	{led_proc,100,0},
+	{key_proc,10,0},
 	
 };
 
@@ -54,6 +55,13 @@ void Motor_StateMachine_Init(Motor_TypeDef *state)
 	  Motor_Hardware_Init();
 		/* 初始化编码器参数 */
 	Encoder_Param_Init(&state->Encoder,ENCODER_LINE,0,Pn,3108);
+	/* 上电默认跑 V/F 模式。
+	 * 不初始化的话默认值 0 = THETA_MODE_ZERO，电机一上电就被固定矢量吸住不动 */
+	state->Theta_Mode = THETA_MODE_VF;
+	/* 初始电压：Vq=0 是安全的（上电不转）。
+	 * 要让它转：按 KEY3 把 Vq 切到 1V，或把这里直接改成 2.0f */
+	state->Foc.Vd = 0.0f;
+	state->Foc.Vq = 0.0f;
 }
 /**
  * @brief 电机状态机运行函数
@@ -62,25 +70,32 @@ void Motor_StateMachine_Init(Motor_TypeDef *state)
  */
 void Motor_StateMachine_Run(Motor_TypeDef *state)
 {
-//	/* 创建虚拟角度变量 */
-//	static float Theta = 0.0f;
-//	/* 角度变量累加 */
-//    Theta += 0.001f;
-//	/* 角度限幅 */
-//    if (Theta >= ANGLE_2PI)
-//    {
-//        Theta -= ANGLE_2PI;
-//    }
-
-//	/* 设置电机角度 */
-	Vf_SpeedControl_Update(&state->Vf,&state->Foc.Theta);
-	state->Foc.Theta_U16 = ANGLE_FROM_RAD(state->Foc.Theta);   /* ← 补这句 */
+	/* 角度模式选择 */
+	switch(state->Theta_Mode)
+	{
+		/* 定位状态 */
+		case THETA_MODE_ZERO:
+			state->Foc.Theta_U16 = 0;
+		break;
+		/* VF角度自增状态 */
+		case THETA_MODE_VF:
+			/* V/F 直接输出 uint16 角度，与编码器同一套刻度 —— 不需要任何浮点转换 */
+			Vf_SpeedControl_Update(&state->Vf,&state->Foc.Theta_U16);
+		break;
+		/* 编码器 */
+		case THETA_MODE_ENCODER:
+			state->Foc.Theta_U16 = state->Encoder.Theta_e_U16;
+		break;
+		default:
+		break;
+		
+	}
 //    state->Foc.Theta     = Theta;
 //	/* sin查表 */
 //    state->Foc.Theta_U16 = ANGLE_FROM_RAD(Theta);
 	/* 设置Vd,Vq */
-    state->Foc.Vd = 0.0f;
-    state->Foc.Vq = 0.0f;
+//    state->Foc.Vd = 0.0f;
+//    state->Foc.Vq = 0.0f;
 
 	/* 坐标变换更新 */
 	Foc_VoltageUpdate(&state->Foc);

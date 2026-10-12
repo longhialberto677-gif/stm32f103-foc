@@ -6,9 +6,22 @@
 #include "Encoder.h"
 void scheduler_init();
 void scheduler_run();
+/**
+ * @brief 电机角度状态枚举
+ * 
+ * 
+ */
+typedef enum
+{
+	THETA_MODE_ZERO = 0,            /* 固定角度零度 */
+	THETA_MODE_VF,                  /* VF角度自增 */
+	THETA_MODE_ENCODER,             /* 编码器角度 */
+	
+}MotorThetaMode_Enum;	
 
 typedef struct 
 {
+	MotorThetaMode_Enum              Theta_Mode;   /* 角度状态 */
 	Foc_TypeDef      Foc;   /* FOC 状态 */
 	Vf_SpeedControl_TypeDef          Vf;          /* VF 状态 */
 	Encoder_Typedef  Encoder;                     /* 编码器状态 */

@@ -31,21 +31,27 @@ void key_proc()
 	key_old = key_id;
 	if(key_down == 1)
 	{
-		
+		 MotorSystem.Theta_Mode = (MotorThetaMode_Enum)
+         ((MotorSystem.Theta_Mode + 1) % 3); 
 	}
 	if(key_down == 2)
 	{
-		
+		if(MotorSystem.Foc.Vd == 0.0f)
+			MotorSystem.Foc.Vd = 1.0f;
+		else if(MotorSystem.Foc.Vd == 1.0f)
+			MotorSystem.Foc.Vd = 0.0f;
 	}
 	if(key_down == 3)
 	{
-		
+		if(MotorSystem.Foc.Vq == 0.0f)
+			MotorSystem.Foc.Vq = 1.0f;
+		else if(MotorSystem.Foc.Vq == 1.0f)
+			MotorSystem.Foc.Vq = 0.0f;
 	}
 	if(key_down == 4)
 	{
-		
-	}
 
+	}
 	
 	
 }

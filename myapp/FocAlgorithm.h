@@ -50,11 +50,12 @@ typedef struct
 	float Speed_Error_Dead;  /* 带死区的速度误差 */
 	float Acc_Dir;           /* 加速度方向 */
 	float Speed_Integrator;  /* 速度积分器 */
-	float Theta_Integrator;  /* 角度积分器 */
+	float Step_K;            /* 初始化算一次：Ts × ANGLE_Q16_PER_RAD */
+	uint32_t Theta_Acc_Q16;  /* 角度累加器：高 16 位就是 uint16 角度，回绕靠溢出 */
 	
 	/* 输出参数 */
-	float Speed;             /* 实际速度 */
-	float Theta;             /* 实际角度 */
+	float Speed;             /* 实际速度（rad/s，只给显示看）*/
+	uint16_t Theta_U16;      /* 实际角度（uint16 一整圈）—— 与编码器同一套刻度 */
 	
 	
 }Vf_SpeedControl_TypeDef;
@@ -74,6 +75,9 @@ typedef struct
  * ==========================================================================*/
 #define ANGLE_FROM_RAD(r) ((uint16_t)((r) * (65536.0f / 6.2831853f)))
 #define ANGLE_TO_RAD_U16(a) ((float)(a) * (6.2831853f / 65536.0f))
+/* 1 弧度等于多少个"角度计数"，再乘 65536 变成 Q16（= 65536/2π × 65536 ≈ 6.83565e8）
+ * V/F 用它把 float 速度一次换算成 Q16 角度增量，角度累加全程整数 */
+#define ANGLE_Q16_PER_RAD  (683565000.0f)
 
 
 
@@ -87,7 +91,7 @@ void SVPWM_ZeroSqInject(Foc_TypeDef *state);
 void Set_Udc_Tpwm_Param(Foc_TypeDef*state,float udc_temp,float Tpwm_temp);
 void Foc_VoltageUpdate(Foc_TypeDef*state);
 void Vf_SpeedControl_Param_Init(Vf_SpeedControl_TypeDef*state,float acc,float target_speed,float dead_zone,float ts);
-void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,float *Target_Theta_Acc);
+void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,uint16_t *Target_Theta_U16);
 //extern Foc_TypeDef Foc; 
 
 #endif

@@ -87,12 +87,14 @@ void Vf_SpeedControl_Param_Init(Vf_SpeedControl_TypeDef*state,float acc,float ta
 	state->Target_Speed = target_speed;
 	state->Dead_Zone = dead_zone;
 	state->Ts = ts;
-	
+	/* 每 (rad/s) 每周期要加多少 Q16 角度计数：Ts × (65536/2π × 65536)
+	 * 初始化预存下来，每个 FOC 周期就只剩 1 次浮点乘法 */
+	state->Step_K = ts * ANGLE_Q16_PER_RAD;
 }
 /* ============================================================================
  * VF速度控制周期函数
  * ==========================================================================*/
-void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,float *Target_Theta_Acc)
+void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,uint16_t *Target_Theta_U16)
 {
 	/* 计算速度误差 */
 	state->Speed_Error = state->Target_Speed - state->Speed_Integrator;
@@ -121,28 +123,15 @@ void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,float *Target_Theta_Ac
 	/* 加速度积分得到速度 */
 	state->Speed_Integrator += state->Acc_Dir * state->Acc * state->Ts;
 
-	/* 速度积分得到角度；然后立刻把累加器回绕，别让它无限增长
-	 * 用 if 不用 while：单次角度增量是 Speed*Ts（约 0.002 rad），远小于 2π，
-	 * 一次减法足够；而且万一 Speed_Integrator 变成 inf/NaN，
-	 * while 会死循环卡在中断里，if 顶多这一拍算错，下一拍就恢复 */
-	state->Theta_Integrator += state->Speed_Integrator * state->Ts;
+	/* 速度积分得到角度：累加器用 Q16，高 16 位就是 uint16 角度
+	 * 回绕完全靠 uint32 溢出自动完成 —— 不需要 if/while，
+	 * 也不会因为 inf/NaN 死循环；正反转（负步长）同样正确（补码回绕）*/
+	state->Theta_Acc_Q16 += (uint32_t)(int32_t)(state->Speed_Integrator * state->Step_K);
+	state->Theta_U16      = (uint16_t)(state->Theta_Acc_Q16 >> 16);
+	state->Speed          = state->Speed_Integrator;
 
-	/* 速度可正可负（反转），两边都要判；回绕后累加器永远停在 [0, 2π) */
-	if(state->Theta_Integrator >= ANGLE_2PI)
-	{
-		state->Theta_Integrator -= ANGLE_2PI;
-	}
-	else if(state->Theta_Integrator < 0.0f)
-	{
-		state->Theta_Integrator += ANGLE_2PI;
-	}
-
-	/* 累加器已经在 [0, 2π) 内，直接就是输出角度，不需要 fmod 了 */
-	state->Theta = state->Theta_Integrator;
-	state->Speed = state->Speed_Integrator;
-
-	/* 函数输出 */
-	*Target_Theta_Acc = state->Theta;
+	/* 函数输出：与编码器同一套刻度（uint16 一整圈），切角度源时可以直接赋值 */
+	*Target_Theta_U16 = state->Theta_U16;
 }
 
 /* ============================================================================
