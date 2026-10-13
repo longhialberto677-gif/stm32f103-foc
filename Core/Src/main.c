@@ -104,7 +104,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  printf("hello");
 	/* 编码器限频到 1kHz。400kHz 下每次读约 0.12ms → 约 12% CPU
 	 * 千万不要每圈都读：阻塞式读会把主循环的时间全吃掉 */
 	static uint32_t enc_tick = 0;
@@ -115,19 +114,12 @@ int main(void)
 		if(data != 0xFFFF)                 /* 读失败就不更新角度 */
 		{
 			Encoder_UpData(&MotorSystem.Encoder,data);
+			/* 打时间戳 + 解算实测转速 + 原子发布给中断（角度预测用）*/
+			Encoder_Speed_Update(&MotorSystem.Encoder,DWT->CYCCNT);
 		}
 	}
 	  scheduler_run();
 	  Vofa_Send_Task();
-//	  HAL_Delay(100);
-//	  HAL_GPIO_WritePin(led_green_GPIO_Port,led_green_Pin,GPIO_PIN_SET);
-//	  HAL_Delay(100);
-//	  HAL_GPIO_WritePin(led_green_GPIO_Port,led_green_Pin,GPIO_PIN_RESET);
-//	  HAL_Delay(100);
-//	  HAL_GPIO_WritePin(led_red_GPIO_Port,led_red_Pin,GPIO_PIN_SET);
-//	  HAL_Delay(100);
-//	  HAL_GPIO_WritePin(led_red_GPIO_Port,led_red_Pin,GPIO_PIN_RESET);
-//	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

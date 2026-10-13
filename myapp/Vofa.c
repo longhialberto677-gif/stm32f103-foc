@@ -20,6 +20,15 @@ void Vofa_Send_Task(void)
 	VofaSend.Send_Data_Array[6] = MotorSystem.Encoder.Theta_U16;
     VofaSend.Send_Data_Array[7] = MotorSystem.Encoder.Theta_e_U16;
 	VofaSend.Send_Data_Array[8] = MotorSystem.Encoder.Pulse_Data;
+	/* ---- 角度预测诊断（[9][10]）---- */
+	/* [9] 解析滞后（电角度计数）= 速度 × 一个采样周期(1ms)
+	 *     = "如果不做预测，这一拍的角度会旧多少" —— 稳定、不抖、随转速线性增长
+	 *     128rpm→约 984（5.4°），1200rpm→约 9400（51.6°），3000rpm→约 23000（126°）
+	 *     （比看瞬时补偿量直观：瞬时值取决于采样时刻，总在主循环刚读完时偏小）*/
+	VofaSend.Send_Data_Array[9] = (float)((MotorSystem.Encoder.Speed_e_Q12 * 72000) >> 12);
+	/* [10] 实测电角速度（rad/s）：Q12 速度 × (72MHz/4096/10430.378) = ×1.68529
+	 *      顺便能看速度估计的质量（应该跟实际转速吻合、且不抖）*/
+	VofaSend.Send_Data_Array[10] = (float)MotorSystem.Encoder.Speed_e_Q12 * 1.68529f;
     Vofa_Data_Process();
 }
 

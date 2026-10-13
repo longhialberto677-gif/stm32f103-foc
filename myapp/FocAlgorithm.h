@@ -14,7 +14,6 @@ typedef struct
 	float HalfTpwm;   /* 预存 0.5f*Tpwm：SVPWM 的直流偏置项 */
     float Vd;        /* d轴电压 */
     float Vq;        /* q轴电压 */
-    float Theta;     /* 电机角度（弧度 0~2*pi，给 VOFA 看波形用）*/
     uint16_t Theta_U16;  /* 电机角度（uint16角，查表运算用，中断里直接累加）*/
 
     float Valpha;    /* alpha电压 */
@@ -92,6 +91,5 @@ void Set_Udc_Tpwm_Param(Foc_TypeDef*state,float udc_temp,float Tpwm_temp);
 void Foc_VoltageUpdate(Foc_TypeDef*state);
 void Vf_SpeedControl_Param_Init(Vf_SpeedControl_TypeDef*state,float acc,float target_speed,float dead_zone,float ts);
 void Vf_SpeedControl_Update(Vf_SpeedControl_TypeDef*state,uint16_t *Target_Theta_U16);
-//extern Foc_TypeDef Foc; 
 
 #endif

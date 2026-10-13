@@ -1,6 +1,6 @@
 #include "FocAlgorithm.h"
 
-//Foc_TypeDef Foc;           //Foc结构体变量
+
 
 /* ============================================================================
  * 反 Park 变换（查表版）
@@ -18,11 +18,6 @@ void Rev_Park_Transf(Foc_TypeDef *state)
     state->Valpha = state->Vd * c - state->Vq * s;
     state->Vbeta  = state->Vd * s + state->Vq * c;
 }
-//void Rev_Park_Transf(Foc_TypeDef *state)
-//{
-//    state->Valpha = state->Vd * cosf(state->Theta) - state->Vq * sinf(state->Theta);
-//    state->Vbeta  = state->Vd * sinf(state->Theta) + state->Vq * cosf(state->Theta);
-//}
 
 /* ============================================================================
  * 反 Clark 变换

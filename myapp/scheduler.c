@@ -82,20 +82,20 @@ void Motor_StateMachine_Run(Motor_TypeDef *state)
 			/* V/F 直接输出 uint16 角度，与编码器同一套刻度 —— 不需要任何浮点转换 */
 			Vf_SpeedControl_Update(&state->Vf,&state->Foc.Theta_U16);
 		break;
-		/* 编码器 */
+		/* 编码器：带角度预测（用实测转速把角度推到"本拍电压实际生效的时刻"）
+		 * ENC_PRED_ENABLE = 0 可以关掉预测做 A/B 对比 */
 		case THETA_MODE_ENCODER:
+#if ENC_PRED_ENABLE
+			state->Foc.Theta_U16 = Encoder_Get_Predicted(&state->Encoder,DWT->CYCCNT);
+#else
 			state->Foc.Theta_U16 = state->Encoder.Theta_e_U16;
+#endif
 		break;
 		default:
 		break;
 		
 	}
-//    state->Foc.Theta     = Theta;
-//	/* sin查表 */
-//    state->Foc.Theta_U16 = ANGLE_FROM_RAD(Theta);
-	/* 设置Vd,Vq */
-//    state->Foc.Vd = 0.0f;
-//    state->Foc.Vq = 0.0f;
+	/* Vd/Vq 在 Motor_StateMachine_Init 里初始化，运行时由按键修改 */
 
 	/* 坐标变换更新 */
 	Foc_VoltageUpdate(&state->Foc);

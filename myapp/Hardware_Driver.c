@@ -47,15 +47,9 @@ void Motor_SetPWM(uint16_t Tcmp1,uint16_t Tcmp2,uint16_t Tcmp3)
  * 只能放主循环调用，绝不能进 10kHz 的 FOC 中断。
  * ==========================================================================*/
 #define AS5600_I2C_ADDR    (0x36 << 1)   /* HAL 接口要 8 位形式 */
-#define AS5600_REG_STATUS  0x0B          /* bit5=MD 检测到磁铁, bit4=ML 太弱, bit3=MH 太强 */
 #define AS5600_REG_RAW     0x0C          /* 原始角度，低 12 位有效 */
-#define AS5600_REG_AGC     0x1A          /* 自动增益 */
 #define AS5600_TIMEOUT_MS  5
 #define AS5600_RETRY       3             /* 读失败重试次数 */
-
-#define AS5600_STATUS_MD   (1U << 5)
-#define AS5600_STATUS_ML   (1U << 4)
-#define AS5600_STATUS_MH   (1U << 3)
 
 /**
  * @brief 读取AS5600原始角度
@@ -133,34 +127,6 @@ void I2C_BusRecover(void)
 
   /* 恢复成 I2C 引脚并重新初始化 */
   MX_I2C1_Init();
-}
-
-/**
- * @brief 磁铁安装自检（第一步验证用；G431 那套没有这个函数，不需要可直接删）
- * @param pAgc：可选，带回自动增益（传 0 表示不需要）
- * @return 0=正常 1=没检测到磁铁 2=太弱 3=太强 0xFF=I2C失败
- * @note  AGC 在中间值（约 128）说明间隙合适
- */
-uint8_t AS5600_CheckMagnet(uint8_t *pAgc)
-{
-  uint8_t st = 0;
-  uint8_t agc = 0;
-
-  if(HAL_I2C_Mem_Read(&hi2c1,AS5600_I2C_ADDR,AS5600_REG_STATUS,I2C_MEMADD_SIZE_8BIT,&st,1,AS5600_TIMEOUT_MS) != HAL_OK)
-  {
-    return 0xFF;
-  }
-  if(pAgc != 0)
-  {
-    if(HAL_I2C_Mem_Read(&hi2c1,AS5600_I2C_ADDR,AS5600_REG_AGC,I2C_MEMADD_SIZE_8BIT,&agc,1,AS5600_TIMEOUT_MS) == HAL_OK)
-    {
-      *pAgc = agc;
-    }
-  }
-  if((st & AS5600_STATUS_MD) == 0U)  return 1U;   /* 没检测到磁铁 */
-  if((st & AS5600_STATUS_ML) != 0U)  return 2U;   /* 磁铁太弱 */
-  if((st & AS5600_STATUS_MH) != 0U)  return 3U;   /* 磁铁太强 */
-  return 0U;                                      /* 正常 */
 }
 
 
