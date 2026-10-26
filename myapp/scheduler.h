@@ -4,6 +4,7 @@
 #include "bsp_system.h"
 #include "FocAlgorithm.h"
 #include "Encoder.h"
+#include "TdTrakcer.h"
 void scheduler_init();
 void scheduler_run();
 /**
@@ -25,6 +26,8 @@ typedef struct
 	Foc_TypeDef      Foc;   /* FOC 状态 */
 	Vf_SpeedControl_TypeDef          Vf;          /* VF 状态 */
 	Encoder_Typedef  Encoder;                     /* 编码器状态 */
+	uint8_t          Td_Tick;                     /* TD 分频计数器（10.2kHz → 1kHz）*/
+	TdTrakcer_TypeDef                Td_Track_Uq; /* uq信号跟踪器 */
 }Motor_TypeDef;
 void Motor_StateMachine_Init(Motor_TypeDef *state);
 void Motor_StateMachine_Run(Motor_TypeDef *state);

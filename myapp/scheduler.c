@@ -55,6 +55,10 @@ void Motor_StateMachine_Init(Motor_TypeDef *state)
 	  Motor_Hardware_Init();
 		/* 初始化编码器参数 */
 	Encoder_Param_Init(&state->Encoder,ENCODER_LINE,0,Pn,3108);
+	/* 初始化微分跟踪器参数
+	 * Ts 必须用【实际调用周期】（10.2kHz 分频 10 → 0.98ms），不能再用 FOC_TS ✗ */
+	TdTrakcer_Param_Init(&state->Td_Track_Uq,0.0f,TD_WN,TD_TS);
+	state->Td_Tick = 0;
 	/* 上电默认跑 V/F 模式。
 	 * 不初始化的话默认值 0 = THETA_MODE_ZERO，电机一上电就被固定矢量吸住不动 */
 	state->Theta_Mode = THETA_MODE_VF;
@@ -95,8 +99,16 @@ void Motor_StateMachine_Run(Motor_TypeDef *state)
 		break;
 		
 	}
-	/* Vd/Vq 在 Motor_StateMachine_Init 里初始化，运行时由按键修改 */
-
+	/* ---- 微分跟踪器：1kHz 更新（10.2kHz ÷ 10）----
+	 * TD 带宽只有 ωn/2π ≈ 16Hz，10kHz 跑和 1kHz 跑【响应完全一样】，
+	 * 但 1kHz 能省 9 倍 cycle（定点内核 ~25 + 浮点转换 ~280）
+	 * Vq 只在 1kHz 更新，中间各拍保持上一次的值 ✓ */
+	if(++state->Td_Tick >= TD_DIV)
+	{
+		state->Td_Tick = 0;
+		state->Foc.Vq = TdTrakcer_UpData(&state->Td_Track_Uq,state->Td_Track_Uq.Input);
+	}
+	/* Vd 已在 Motor_StateMachine_Init 里设成 0，不再每周期强制（这样 KEY2 也还有效）*/
 	/* 坐标变换更新 */
 	Foc_VoltageUpdate(&state->Foc);
 	/* 将计算出的三相CCR比较值赋值给三路CCR比较值寄存器 */

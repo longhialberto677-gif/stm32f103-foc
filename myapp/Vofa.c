@@ -11,8 +11,8 @@ VofaSend_TypeDef VofaSend;
 void Vofa_Send_Task(void)
 {
     /* 填入需要发送的数据 */
-	VofaSend.Send_Data_Array[0] = ANGLE_TO_RAD_U16(MotorSystem.Foc.Theta_U16);   /* FOC角度（弧度，只为显示）*/
-    VofaSend.Send_Data_Array[1] = MotorSystem.Vf.Target_Speed;
+	VofaSend.Send_Data_Array[0] = MotorSystem.Foc.Vq;
+    VofaSend.Send_Data_Array[1] = MotorSystem.Td_Track_Uq.Input;
     VofaSend.Send_Data_Array[2] = MotorSystem.Vf.Speed;
     VofaSend.Send_Data_Array[3] = ANGLE_TO_RAD_U16(MotorSystem.Vf.Theta_U16);    /* V/F角度（弧度，只为显示）*/
     VofaSend.Send_Data_Array[4] = MotorSystem.Foc.Vv;

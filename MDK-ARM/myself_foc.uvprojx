@@ -885,6 +885,16 @@
               <FileType>5</FileType>
               <FilePath>..\myapp\Encoder.h</FilePath>
             </File>
+            <File>
+              <FileName>TdTrakcer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\myapp\TdTrakcer.c</FilePath>
+            </File>
+            <File>
+              <FileName>TdTrakcer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\myapp\TdTrakcer.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
